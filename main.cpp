@@ -70,7 +70,7 @@ const std::map<std::string, std::shared_ptr<NoneOperandInstruction>> noneOperand
     {"return", std::make_shared<NoneOperandInstruction>("1000000000000000", &Function::returnFunction)},
     {"stop", std::make_shared<NoneOperandInstruction>("0000000000000000", &Function::stop)}
 };
-std::map<std::string, std::shared_ptr<OneOperandInstruction<int>>> oneOperandInstruction = {
+std::multimap<std::string, std::shared_ptr<OneOperandInstruction<int>>> oneOperandInstruction = {
     {"copytop", std::make_shared<OneOperandInstruction<int>>("10110", &Function::copytop)},
     {"call", std::make_shared<OneOperandInstruction<int>>("01111", &Function::call)},
     {"push", std::make_shared<OneOperandInstruction<int>>("01101", &Function::push)},
@@ -79,7 +79,7 @@ std::map<std::string, std::shared_ptr<OneOperandInstruction<int>>> oneOperandIns
     {"write", std::make_shared<OneOperandInstruction<int>>("00100", &Function::write)},
     {"jump", std::make_shared<OneOperandInstruction<int>>("01001", &Function::jump)}
 };
-std::map<std::string, std::shared_ptr<TwoOperandInstruction<int,int>>> twoOperandInstruction = {
+std::multimap<std::string, std::shared_ptr<TwoOperandInstruction<int,int>>> twoOperandInstruction = {
     {"store_i", std::make_shared<TwoOperandInstruction<int,int>>("10101", &Function::store_i)},
     {"load_i", std::make_shared<TwoOperandInstruction<int,int>>("10100", &Function::load_i)},
     {"load_c", std::make_shared<TwoOperandInstruction<int,int>>("10011", &Function::load_c)},

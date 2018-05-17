@@ -4,29 +4,29 @@ Com nenhum operador:
 - stop: 0000000000000000
 
 Com um operador: 5b pro opcode, 11b pro argumento
-- copytop: 10110
-- call: 01111
-- push: 01101
-- pop: 01110
-- read: 00011
-- write: 00100
-- jump: 01001
+- copytop: 10110 - registrador
+- call: 01111 - endereço
+- push: 01101 - registrador
+- pop: 01110 - registrador
+- read: 00011 - registrador
+- write: 00100 - registrador
+- jump: 01001 - endereço
 
 Com dois operadores: 5b pro opcode, 2b para o primeiro argumento, 9b para o segundo
-- store_i: 10101
-- load_i: 10100
-- load_c: 10011
-- store_s: 10010
-- load_s: 10001
-- move: 01100
-- divide: 01000
-- multiply: 00111
-- subtract: 00110
-- load: 00001
-- store: 00010
-- add: 00101
-- jmpz: 01010
-- jmpn: 01011
+- store_i: 10101 - registrador - registrador
+- load_i: 10100 - registrador - registrador
+- load_c: 10011 - registrador - constante
+- store_s: 10010 - registrador - endereço na pilha
+- load_s: 10001 - registrador - endereço na pilha
+- move: 01100 - registrador - registrador
+- divide: 01000 - registrador - registrador
+- multiply: 00111 - registrador - registrador
+- subtract: 00110 - registrador - registrador
+- load: 00001 - registrador - endereço
+- store: 00010 - registrador - endereço
+- add: 00101 - registrador - registrador
+- jmpz: 01010 - registrador - endereço
+- jmpn: 01011 - registrador - endereço
 
 Registradores: 2b
 - A0: 00

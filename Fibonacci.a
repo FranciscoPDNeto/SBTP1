@@ -1,0 +1,37 @@
+MAIN:   read A0 ; Le o numero "n" para calcular o Fibonacci(n).
+    call FIBONACCI
+    write A2    ; Imprime o resultado armazenado que foi armazenado em A2 na funcao.
+    stop        ; Fim da funcao main, encerrando o programa.
+
+;; Funcao para calculo do Fibonnaci com o parametro em A0.
+FIBONACCI:  load_c A2 3
+    subtract A0 A2  ; Subtrai 3 do parametro passado para verificar se ele e maior que 2.
+    jmpn A0 DEFAULT ; Caso nao seja maior que 2, retorna o valor default.
+                    ; e verificado se ficou negativo para restringir todos os parametros menores
+                    ; ou iguais a 2, inclusive os numeros negativos.
+
+    move A0 A3      ; A0 sera o contador do loop, "i".
+    load A1 one     ; A1 sera o Fibonnaci(n - 2).
+    load A2 one     ; A2 sera o Fibonnaci(n - 1).
+    add A3 A1       ; Adiciona 1 ao contador, para fazer comparacao com 0, em vez de comparacao
+                    ; com numero negativo, como foi feito anteriormente.
+
+LOOP: jmpz A3 FINISH ; Caso o contador tenha chegado em 0, encerra o loop.
+
+    load A0 one
+    subtract A3 A0  ; Subtrai 1 do contador "i".
+
+    load A0 zero    ; Zera o registrador para armazenar a soma A1 + A2.
+    add A0 A1
+    add A0 A2
+    move A2 A1      ; A1 passa a ser o Fibonnaci(n - i - 1).
+    move A0 A2      ; A2 passa a ser o Fibonnaci(n - i), sendo o resultado final quando "i" = 0.
+
+    jump LOOP       ; Executa o loop novamente.
+
+DEFAULT:    load A2 one ; Resultado padrao 1 quando "n" e menor ou igual a 2.
+FINISH:     return      ; Sai da funcao e retorna ao endereco onde foi chamada.
+                        ; Fibonnaci(n) estara armazenado em A2.
+
+zero: .data 2 0 ; Inicializa a constante 0.
+one: .data 2 1  ; Inicializa a constante 1.

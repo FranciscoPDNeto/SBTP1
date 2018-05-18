@@ -1,0 +1,52 @@
+DEPTH = 128;
+WIDTH = 8;
+ADDRESS_RADIX = HEX;
+DATA_RADIX = BIN;
+CONTENT
+BEGIN
+
+00        :  00011000;              -- MAIN: read A0 ; Le o numero "n" para calcular o Fibonacci(n).
+01        :  00000000;              -- 
+02        :  01111000;              -- call FIBONACCI
+03        :  00001000;              -- 
+04        :  00100000;              -- write A2 ; Imprime o resultado armazenado que foi armazenado em A2 na funcao.
+05        :  00000010;              -- 
+[06..07]:  00000000;              -- 
+08        :  10011100;              -- FIBONACCI: load_c A2 3
+09        :  00000011;              -- 
+0A        :  00110000;              -- subtract A0 A2 ; Subtrai 3 do parametro passado para verificar se ele e maior que 2.
+0B        :  00000010;              -- 
+0C        :  01011000;              -- jmpn A0 DEFAULT ; Caso nao seja maior que 2, retorna o valor default.
+0D        :  00101000;              -- 
+0E        :  01100000;              -- move A0 A3 ; A0 sera o contador do loop, "i".
+0F        :  00000011;              -- 
+10        :  00001010;              -- load A1 one ; A1 sera o Fibonnaci(n - 2).
+11        :  00101110;              -- 
+12        :  00001100;              -- load A2 one ; A2 sera o Fibonnaci(n - 1).
+[13..14]:  00101110;              -- add A3 A1 ; Adiciona 1 ao contador, para fazer comparacao com 0, em vez de comparacao
+15        :  00000001;              -- 
+16        :  01010110;              -- LOOP: jmpz A3 FINISH ; Caso o contador tenha chegado em 0, encerra o loop.
+17        :  00101010;              -- 
+18        :  00001000;              -- load A0 one
+19        :  00101110;              -- 
+1A        :  00110110;              -- subtract A3 A0 ; Subtrai 1 do contador "i".
+1B        :  00000000;              -- 
+1C        :  00001000;              -- load A0 zero ; Zera o registrador para armazenar a soma A1 + A2.
+1D        :  00101100;              -- 
+1E        :  00101000;              -- add A0 A1
+1F        :  00000001;              -- 
+20        :  00101000;              -- add A0 A2
+21        :  00000010;              -- 
+22        :  01100100;              -- move A2 A1 ; A1 passa a ser o Fibonnaci(n - i - 1).
+23        :  00000001;              -- 
+24        :  01100000;              -- move A0 A2 ; A2 passa a ser o Fibonnaci(n - i), sendo o resultado final quando "i" = 0.
+25        :  00000010;              -- 
+26        :  01001000;              -- jump LOOP ; Executa o loop novamente.
+27        :  00010110;              -- 
+28        :  00001100;              -- DEFAULT: load A2 one ; Resultado padrao 1 quando "n" e menor ou igual a 2.
+29        :  00101110;              -- 
+2A        :  10000000;              -- FINISH: return ; Sai da funcao e retorna ao endereco onde foi chamada.
+[2B..2E]:  00000000;              -- one: .data 2 1 ; Inicializa a constante 1.
+2F        :  00000001;              -- 
+[30..7F]:  00000000;              -- 
+END;

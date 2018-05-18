@@ -6,8 +6,8 @@ Com nenhum operador:
 Com um operador: 5b pro opcode, 11b pro argumento
 - copytop: 10110 - registrador
 - call: 01111 - endereço ✓
-- push: 01101 - registrador
-- pop: 01110 - registrador
+- push: 01101 - registrador ✓
+- pop: 01110 - registrador ✓
 - read: 00011 - registrador ✓
 - write: 00100 - registrador ✓
 - jump: 01001 - endereço ✓

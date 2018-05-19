@@ -201,7 +201,9 @@ int main(int argc, char const *argv[]) {
 
     int memoryCount = secondFilePass(file, outputFile);
 
-    outputFile << '[' << std::bitset<8>(memoryCount) << "..01111111] : " << std::bitset<8>() << ';' << std::endl 
-        << "END;";
+    if (memoryCount < 128) {
+        outputFile << '[' << std::bitset<8>(memoryCount) << "..01111111] : " << std::bitset<8>() << ';' << std::endl;
+    }
+    outputFile << "END;";
     return 0;
 }

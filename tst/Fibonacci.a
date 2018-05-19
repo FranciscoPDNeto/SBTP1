@@ -2,8 +2,8 @@ _MAIN:  read A0      ; Le o numero "n" para calcular o Fibonacci(n).
     push A0          ; Armazena o parametro requerido pela funcao.
     call _FIBONACCI
     pop A0           ; Recupera o retorno da funcao armazenado na pilha.
-    write A0         ; Imprime o resultado armazenado que foi armazenado em A2 na funcao.
-    stop             ; Fim da funcao main, encerrando o programa.
+    write A0         ; Imprime o resultado retornado.
+    stop             ; Fim do programa.
 _FIBONACCI: pop A1   ; Armazena temporariamente o endereco de retorno.
     pop A0           ; Recupera o parametro passado para a funcao.
     push A1          ; Armazena novamente o endereco de retorno da funcao.

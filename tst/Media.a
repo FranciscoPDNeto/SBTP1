@@ -1,0 +1,14 @@
+_MAIN: load A0 _zero  ; Inicializa o totalizador.
+    load A1 _zero     ; Inicializa o contador de numeros inseridos.
+    load A2 _one      ; Inicializa variavel para incrementar o contador a cada iteracao.
+_LOOP: read A3        ; Le um numero do usuario.
+    jmpn A3 _CALC     ; Caso o numero inserido seja negativo, encerra a insercao do usuario.
+    add A0 A3         ; Adiciona o numero inserido ao total.
+    add A1 A2         ; Adiciona um ao contador de numeros inseridos.
+    jump _LOOP        ; Repete o loop.
+_CALC: jmpz A1 _PRINT ; Caso nenhum numero tenha sido inserido, sai do calculo, evitando divisao por zero.
+    divide A0 A1      ; Divide o total somado pela quantidade de numeros inseridos.
+_PRINT: write A0      ; Imprime a media calculada. Pode estar truncada, caso tenha parte decimal.
+    stop              ; Fim do programa.
+_one: .data 2 1       ; Inicializa a constante 1.
+_zero: .data 2 0      ; Inicializa a constante 0.

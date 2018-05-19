@@ -1,0 +1,5 @@
+.data 2 -26501 ; load_c A0 123 - Carrega a constante 123 no registrador A0.
+load_c A1 210  ;               - Carrega a constante 210 no registrador A1.
+.data 2 10241  ; add A0 A1     - Adiciona os dois registradores.
+.data 2 8192   ; write A0      - Imprime a soma.
+.data 2 0      ; stop          - Fim do programa.

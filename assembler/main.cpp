@@ -9,72 +9,34 @@
 #include <utility>
 #include <vector>
 
-class NoneOperandInstruction {
-public:
-    std::bitset<16> opcode;
-
-    NoneOperandInstruction(const std::bitset<16> opcode) 
-        : opcode(opcode) {
-    }
+const std::map<std::string, std::bitset<16>> noneOperandInstructions = {
+    {"return", std::bitset<16>("1000000000000000")},
+    {"stop", std::bitset<16>("0000000000000000")}
 };
-
-class OneOperandInstruction {
-public:
-    std::bitset<5> opcode;
-    std::bitset<11> firstOperand;
-
-    OneOperandInstruction(const std::bitset<5> opcode) 
-        : opcode(opcode) {
-    }
-
-    OneOperandInstruction(const std::bitset<5> opcode, const std::bitset<11> operand) : opcode(opcode), 
-        firstOperand(operand) {
-    }
+const std::map<std::string, std::bitset<5>> oneOperandInstructions = {
+    {"copytop", std::bitset<5>("10110")},
+    {"call", std::bitset<5>("01111")},
+    {"push", std::bitset<5>("01101")},
+    {"pop", std::bitset<5>("01110")},
+    {"read", std::bitset<5>("00011")},
+    {"write", std::bitset<5>("00100")},
+    {"jump", std::bitset<5>("01001")}
 };
-
-class TwoOperandInstruction {
-public:
-    std::bitset<5> opcode;
-    std::bitset<2> firstOperand;
-    std::bitset<9> secondOperand;
-
-    TwoOperandInstruction(const std::bitset<5> opcode) 
-        : opcode(opcode) {
-    }
-
-    TwoOperandInstruction(const std::bitset<5> opcode, const std::bitset<2> firstOperand, const std::bitset<9> secondOperand) 
-        : opcode(opcode), firstOperand(firstOperand), secondOperand(secondOperand) {
-    }
-};
-
-const std::map<std::string, std::shared_ptr<NoneOperandInstruction>> noneOperandInstructions = {
-    {"return", std::make_shared<NoneOperandInstruction>(std::bitset<16>("1000000000000000"))},
-    {"stop", std::make_shared<NoneOperandInstruction>(std::bitset<16>("0000000000000000"))}
-};
-std::map<std::string, std::shared_ptr<OneOperandInstruction>> oneOperandInstruction = {
-    {"copytop", std::make_shared<OneOperandInstruction>(std::bitset<5>("10110"))},
-    {"call", std::make_shared<OneOperandInstruction>(std::bitset<5>("01111"))},
-    {"push", std::make_shared<OneOperandInstruction>(std::bitset<5>("01101"))},
-    {"pop", std::make_shared<OneOperandInstruction>(std::bitset<5>("01110"))},
-    {"read", std::make_shared<OneOperandInstruction>(std::bitset<5>("00011"))},
-    {"write", std::make_shared<OneOperandInstruction>(std::bitset<5>("00100"))},
-    {"jump", std::make_shared<OneOperandInstruction>(std::bitset<5>("01001"))}
-};
-std::map<std::string, std::shared_ptr<TwoOperandInstruction>> twoOperandInstruction = {
-    {"store_i", std::make_shared<TwoOperandInstruction>(std::bitset<5>("10101"))},
-    {"load_i", std::make_shared<TwoOperandInstruction>(std::bitset<5>("10100"))},
-    {"load_c", std::make_shared<TwoOperandInstruction>(std::bitset<5>("10011"))},
-    {"store_s", std::make_shared<TwoOperandInstruction>(std::bitset<5>("10010"))},
-    {"load_s", std::make_shared<TwoOperandInstruction>(std::bitset<5>("10001"))},
-    {"move", std::make_shared<TwoOperandInstruction>(std::bitset<5>("01100"))},
-    {"divide", std::make_shared<TwoOperandInstruction>(std::bitset<5>("01000"))},
-    {"multiply", std::make_shared<TwoOperandInstruction>(std::bitset<5>("00111"))},
-    {"subtract", std::make_shared<TwoOperandInstruction>(std::bitset<5>("00110"))},
-    {"load", std::make_shared<TwoOperandInstruction>(std::bitset<5>("00001"))},
-    {"store", std::make_shared<TwoOperandInstruction>(std::bitset<5>("00010"))},
-    {"add", std::make_shared<TwoOperandInstruction>(std::bitset<5>("00101"))},
-    {"jmpz", std::make_shared<TwoOperandInstruction>(std::bitset<5>("01010"))},
-    {"jmpn", std::make_shared<TwoOperandInstruction>(std::bitset<5>("01011"))}
+const std::map<std::string, std::bitset<5>> twoOperandInstructions = {
+    {"store_i", std::bitset<5>("10101")},
+    {"load_i", std::bitset<5>("10100")},
+    {"load_c", std::bitset<5>("10011")},
+    {"store_s", std::bitset<5>("10010")},
+    {"load_s", std::bitset<5>("10001")},
+    {"move", std::bitset<5>("01100")},
+    {"divide", std::bitset<5>("01000")},
+    {"multiply", std::bitset<5>("00111")},
+    {"subtract", std::bitset<5>("00110")},
+    {"load", std::bitset<5>("00001")},
+    {"store", std::bitset<5>("00010")},
+    {"add", std::bitset<5>("00101")},
+    {"jmpz", std::bitset<5>("01010")},
+    {"jmpn", std::bitset<5>("01011")}
 };
 
 std::map<std::string, int> addressMap = {
@@ -96,6 +58,7 @@ int main(int argc, char const *argv[]) {
         exit(1);
     }
 
+    // Primeiro passagem pelo arquivo para que se armazene os endereços dos labels e do .data.
     int memoryCount = 0;
 	for (std::string line; std::getline(file, line);) {
 		std::istringstream lineStream(line);
@@ -103,23 +66,28 @@ int main(int argc, char const *argv[]) {
 		std::string instructionCode;
 		lineStream >> instructionCode;
 
+        // Verifica se não é uma instrução, mas sim label.
 		if (noneOperandInstructions.find(instructionCode) == noneOperandInstructions.end() &&
-            oneOperandInstruction.find(instructionCode) == oneOperandInstruction.end() &&
-            twoOperandInstruction.find(instructionCode) == twoOperandInstruction.end()) {
+            oneOperandInstructions.find(instructionCode) == oneOperandInstructions.end() &&
+            twoOperandInstructions.find(instructionCode) == twoOperandInstructions.end()) {
 
             // para retirar o ':'' do label.
             instructionCode.pop_back();
             addressMap[instructionCode] = memoryCount;
-		} 
+		}
+
+        // Passa para proxima posição de memória disponível.
         memoryCount += 2;
 	}
 
+    // Limpa o arquivo e começa a leitura novamente (segunda passada).
 	file.clear();
 	file.seekg(0);
     memoryCount = 0;
 
     std::ofstream outputFile("output.mif");
 
+    // Cabeçalho do .mif para identificação da memória.
     outputFile << "DEPTH = 128;" << std::endl
         << "WIDTH = 8;" << std::endl
         << "ADDRESS_RADIX = BIN; " << std::endl
@@ -131,45 +99,58 @@ int main(int argc, char const *argv[]) {
     for (std::string line; std::getline(file, line); ) {
         std::istringstream lineStream(line);
 
+        // Le a primeira string, que pode ser uma instrução ou um label.
         std::string instructionCode;
         lineStream >> instructionCode;
         
+        // Caso for um label, le a próxima string, que será a instrução.
         if (noneOperandInstructions.find(instructionCode) == noneOperandInstructions.end() &&
-            oneOperandInstruction.find(instructionCode) == oneOperandInstruction.end() &&
-            twoOperandInstruction.find(instructionCode) == twoOperandInstruction.end()) {
+            oneOperandInstructions.find(instructionCode) == oneOperandInstructions.end() &&
+            twoOperandInstructions.find(instructionCode) == twoOperandInstructions.end()) {
             lineStream >> instructionCode;
         }
 
+        // Pega cada célula da memória, sendo a parte alta e a parte baixa.
         std::bitset<8> memoryAddressHigh(memoryCount);
         std::bitset<8> memoryAddressLow(memoryCount+1);
+
+        // O valor propriamente dito da célula da memória correspondente.
         std::bitset<16> dataValue;
+        // Para ir para a próxima posição de memória (próxima instrução).
         memoryCount += 2;
+        // Caso for um .data, é lido depois a memória de alocação, que com a mudança na
+        // especificação é sempre 2 (16 bits).
+        // Caso contrário é uma instrução.
         if (instructionCode == ".data") {
             int memoryAlocation, initialValue;
             lineStream >> memoryAlocation >> initialValue;
 
-            // std::bitset<8> memoryAddress2(memoryCount);
             dataValue = std::bitset<16>(initialValue);
         } else {
             auto noneInstruction = noneOperandInstructions.find(instructionCode);
+            // Se não for uma instrução que não tem operador, então pode ser uma
+            // instrução com um ou dois operadores.
             if (noneInstruction == noneOperandInstructions.end()) {
         	    std::string firstOperand;
         	    lineStream >> firstOperand;
                 
+                // Par do primeiro operador e seu respectivo endereço de memória.
                 auto firstOperandAddress = addressMap.find(firstOperand);
-                auto oneInstruction = oneOperandInstruction.find(instructionCode);
-                if (oneInstruction == oneOperandInstruction.end()) {
+                auto oneInstruction = oneOperandInstructions.find(instructionCode);
+                // Caso não seja uma instrução de um operador, é lido o segundo operador.
+                if (oneInstruction == oneOperandInstructions.end()) {
                     std::string secondOperand;
                     lineStream >> secondOperand;
 
+                    // Par do segundo operador e seu respectivo endereço de memória.
                     auto secondOperandAddress = addressMap.find(secondOperand);
-                    if (secondOperandAddress == addressMap.end()) {
+                    auto twoInstruction = twoOperandInstructions.find(instructionCode);
 
-                    }
-
-                    auto twoInstruction = twoOperandInstruction.find(instructionCode);
-
-                    dataValue = std::bitset<16>(twoInstruction->second->opcode.to_string() +
+                    // Armazena o valor como sendo o opcode, primeiro operador e segundo operador.
+                    // O segundo operador pode ser uma constante, então pode não estar na memória,
+                    // portanto deve-se verificar se está ou não na memória, se não estiver, então
+                    // é uma constante inteira.
+                    dataValue = std::bitset<16>(twoInstruction->second.to_string() +
                         std::bitset<2>(firstOperandAddress->second).to_string() + 
                         std::bitset<9>(
                             secondOperandAddress != addressMap.end() ?
@@ -178,19 +159,19 @@ int main(int argc, char const *argv[]) {
                              std::stoi(secondOperand)).to_string());
                     
                 } else {
-                    dataValue = std::bitset<16>(oneInstruction->second->opcode.to_string() +
+                    // Armazena o valor como sendo o opcode e o primeiro operador.
+                    dataValue = std::bitset<16>(oneInstruction->second.to_string() +
                         std::bitset<11>(firstOperandAddress->second).to_string());
                     }
             } else {
-                dataValue = std::bitset<16>(noneInstruction->second->opcode);
+                // Armazena o valor como sendo o opcode.
+                dataValue = std::bitset<16>(noneInstruction->second);
             }
-            
         }
-        std::cout << instructionCode << ": "<< dataValue << std::endl;
         std::bitset<8> highValue(dataValue.to_string());
         std::bitset<8> lowValue((dataValue << 8).to_string());
 
-        outputFile << memoryAddressHigh << " : " << highValue << ';' << std::endl;
+        outputFile << memoryAddressHigh << " : " << highValue << "; -- " << line << std::endl;
         outputFile << memoryAddressLow << " : " << lowValue << ';' << std::endl;
     }
 

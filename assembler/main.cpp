@@ -107,114 +107,94 @@ int main(int argc, char const *argv[]) {
             oneOperandInstruction.find(instructionCode) == oneOperandInstruction.end() &&
             twoOperandInstruction.find(instructionCode) == twoOperandInstruction.end()) {
 
-
+            // para retirar o ':'' do label.
+            instructionCode.pop_back();
             addressMap[instructionCode] = memoryCount;
-            /*
-            std::string pseudoInstruction;
-            lineStream >> pseudoInstruction;
-            if (pseudoInstruction == ".data") {
-                int memoryAlocation;
-                int initialValue;
-                lineStream >> memoryAlocation;
-                lineStream >> initialValue;
-                
-                memoryCount += 2*2+1;
-            } else {
-                memoryCount += 2;
-            }
-            */
 		} 
         memoryCount += 2;
 	}
 
 	file.clear();
 	file.seekg(0);
+    memoryCount = 0;
 
     std::ofstream outputFile("output.mif");
+
     outputFile << "DEPTH = 128;" << std::endl
-        << "WIDTH = 16;" << std::endl
+        << "WIDTH = 8;" << std::endl
         << "ADDRESS_RADIX = BIN; " << std::endl
         << "DATA_RADIX = BIN; " << std::endl
         << "CONTENT" << std::endl
         << "BEGIN" << std::endl
         << std::endl;
 
-    memoryCount = 0;
     for (std::string line; std::getline(file, line); ) {
         std::istringstream lineStream(line);
 
         std::string instructionCode;
         lineStream >> instructionCode;
-
-        auto label = addressMap.find(instructionCode);
-        if (label != addressMap.end()) {
+        
+        if (noneOperandInstructions.find(instructionCode) == noneOperandInstructions.end() &&
+            oneOperandInstruction.find(instructionCode) == oneOperandInstruction.end() &&
+            twoOperandInstruction.find(instructionCode) == twoOperandInstruction.end()) {
             lineStream >> instructionCode;
         }
 
-        std::bitset<8> memoryAddressLow(memoryCount);
-        std::bitset<8> memoryAddressHigh(memoryCount+1);
+        std::bitset<8> memoryAddressHigh(memoryCount);
+        std::bitset<8> memoryAddressLow(memoryCount+1);
+        std::bitset<16> dataValue;
         memoryCount += 2;
         if (instructionCode == ".data") {
             int memoryAlocation, initialValue;
             lineStream >> memoryAlocation >> initialValue;
 
             // std::bitset<8> memoryAddress2(memoryCount);
-            std::bitset<16> dataValue(initialValue);
-            std::bitset<8> highValue(dataValue.to_string());
-            std::bitset<8> lowValue((dataValue << 8).to_string());
-
-
-            outputFile << memoryAddressLow << " : " << lowValue << ';' << std::endl;
-            outputFile << memoryAddressHigh << " : " << highValue << ';' << std::endl;
-            continue;
-        }
-
-        auto noneInstruction = noneOperandInstructions.find(instructionCode);
-        if (noneInstruction == noneOperandInstructions.end()) {
-    	    std::string firstOperand;
-    	    lineStream >> firstOperand;
-            
-            auto firstOperandAddress = addressMap.find(firstOperand);
-            auto oneInstruction = oneOperandInstruction.find(instructionCode);
-            if (oneInstruction == oneOperandInstruction.end()) {
-                std::string secondOperand;
-                lineStream >> secondOperand;
-
-                auto secondOperandAddress = addressMap.find(secondOperand);
-
-                auto twoInstruction = twoOperandInstruction.find(instructionCode);
-
-                twoInstruction->second->firstOperand = std::bitset<2>(firstOperandAddress->second);
-                twoInstruction->second->secondOperand = std::bitset<9>(secondOperandAddress->second);
-
-                std::bitset<16> dataValue(twoInstruction->second->opcode.to_string() +
-                    twoInstruction->second->firstOperand.to_string() + 
-                    twoInstruction->second->secondOperand.to_string());
-                std::bitset<8> highValue(dataValue.to_string());
-                std::bitset<8> lowValue((dataValue << 8).to_string());
-
-                outputFile << memoryAddressLow << " : " << lowValue << ';' << std::endl;
-                outputFile << memoryAddressHigh << " : " << highValue << ';' << std::endl;
-            } else {
-                oneInstruction->second->firstOperand = firstOperandAddress->second;
-
-                std::bitset<16> dataValue(oneInstruction->second->opcode.to_string() +
-                    oneInstruction->second->firstOperand.to_string());
-                std::bitset<8> highValue(dataValue.to_string());
-                std::bitset<8> lowValue((dataValue << 8).to_string());
-
-                outputFile << memoryAddressLow << " : " << lowValue << ';' << std::endl;
-                outputFile << memoryAddressHigh << " : " << highValue << ';' << std::endl;
-            }
+            dataValue = std::bitset<16>(initialValue);
         } else {
-            std::bitset<8> highValue(noneInstruction->second->opcode.to_string());
-            std::bitset<8> lowValue((noneInstruction->second->opcode << 8).to_string());
-            outputFile << memoryAddressLow << " : " << lowValue << ';' << std::endl;
-            outputFile << memoryAddressHigh << " : " << highValue << ';' << std::endl;
+            auto noneInstruction = noneOperandInstructions.find(instructionCode);
+            if (noneInstruction == noneOperandInstructions.end()) {
+        	    std::string firstOperand;
+        	    lineStream >> firstOperand;
+                
+                auto firstOperandAddress = addressMap.find(firstOperand);
+                auto oneInstruction = oneOperandInstruction.find(instructionCode);
+                if (oneInstruction == oneOperandInstruction.end()) {
+                    std::string secondOperand;
+                    lineStream >> secondOperand;
+
+                    auto secondOperandAddress = addressMap.find(secondOperand);
+                    if (secondOperandAddress == addressMap.end()) {
+
+                    }
+
+                    auto twoInstruction = twoOperandInstruction.find(instructionCode);
+
+                    dataValue = std::bitset<16>(twoInstruction->second->opcode.to_string() +
+                        std::bitset<2>(firstOperandAddress->second).to_string() + 
+                        std::bitset<9>(
+                            secondOperandAddress != addressMap.end() ?
+                             secondOperandAddress->second
+                            :
+                             std::stoi(secondOperand)).to_string());
+                    
+                } else {
+                    dataValue = std::bitset<16>(oneInstruction->second->opcode.to_string() +
+                        std::bitset<11>(firstOperandAddress->second).to_string());
+                    }
+            } else {
+                dataValue = std::bitset<16>(noneInstruction->second->opcode);
+            }
+            
         }
+        std::cout << instructionCode << ": "<< dataValue << std::endl;
+        std::bitset<8> highValue(dataValue.to_string());
+        std::bitset<8> lowValue((dataValue << 8).to_string());
+
+        outputFile << memoryAddressHigh << " : " << highValue << ';' << std::endl;
+        outputFile << memoryAddressLow << " : " << lowValue << ';' << std::endl;
     }
 
-    outputFile << '[' << std::bitset<8>(memoryCount) << "..01111111] : " << std::bitset<8>() << std::endl 
+    outputFile << '[' << std::bitset<8>(memoryCount) << "..01111111] : " << std::bitset<8>() << ';' << std::endl 
         << "END;";
     return 0;
 }
